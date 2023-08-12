@@ -1,0 +1,18 @@
+{% extends 'flatpages/default.html' %}
+{% load custom_filters %}
+
+{% block title %}
+{{title}}
+{% endblock title %}
+
+{% block content %}
+
+<h1> Категории постов: </h1>
+        <table>
+            <tr>
+                <td> {{ categories.name_cat }} </td>
+            </tr>
+        </table>
+
+
+{% endblock content %}

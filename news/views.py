@@ -1,11 +1,14 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.http import HttpResponse, HttpResponseNotFound, Http404
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .forms import PostForm
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Post
+from .models import Post, Category
 from .filters import PostFilter
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+
 
 menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Обратная связь", 'url_name': 'contact'},
@@ -26,6 +29,36 @@ class PostList(ListView):
         context['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
         return context
 
+class CategoryList(ListView): #Просмотр всех категорий с возможностью подписки
+    model = Category
+    template_name = 'category.html'
+    context_object_name = 'categories'
+    paginate_by = 10
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['menu'] = menu
+        context['title'] = 'Категории постов'
+        context['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
+        context['cat_user'] = Category.objects.filter(subscribers__username=self.request.user.username)
+        return context
+
+class CategoryListView(ListView): #Просмотр всех постов соответствующих конкретной категории
+    model = Category
+    template_name = 'category_list.html'
+    context_object_name = 'category_news_list'
+    paginate_by = 10
+
+    def get_queryset(self):
+        self.category = get_object_or_404(Category,id = self.kwargs['pk'])
+        queryset = Post.objects.filter(category=self.category).order_by('-time_in')
+        return queryset
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['menu'] = menu
+        context['title'] = 'Все посты по категориям'
+        context['is_not_subscriber'] = self.request.user not in self.category.subscribers.all()
+        context['category'] = self.category
+        return context
 
 class PostListNews(ListView):
     model = Post
@@ -140,6 +173,7 @@ class PostCreate(PermissionRequiredMixin, CreateView):
     form_class = PostForm
     model = Post
     template_name = 'post_edit.html'
+
     def form_valid(self, form):
         post = form.save(commit=False)
         if self.request.path == '/posts/news/create/':
@@ -152,6 +186,7 @@ class PostCreate(PermissionRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['menu'] = menu
         context['title'] = 'Все посты'
+        context['user'] = self.request.user.username
         return context
 
 class PostUpdate(PermissionRequiredMixin, UpdateView):
@@ -193,3 +228,23 @@ def login(request):
 
 def about(request):
     return render(request, 'news/about.html', {'menu': menu, 'title': 'О сайте'})
+
+@login_required
+def subscribe(request, pk):
+    user = request.user
+    category = Category.objects.get(id=pk)
+    category.subscribers.add(user)
+
+    message = 'Вы подписались на рассылку новостей категории'
+    #return render(request, 'subscribe.html', {'category': category, 'message': message})
+    return redirect('categories_posts')
+
+@login_required
+def unsubscribe(request, pk):
+    user = request.user
+    category = Category.objects.get(id=pk)
+    category.subscribers.remove(user)
+
+    message = 'Вы отписались от рассылки новостей категории'
+    #return render(request, 'subscribe.html', {'category': category, 'message': message})
+    return redirect('categories_posts')

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Новый пост</title>
+</head>
+<body>
+    <h1>
+        Здравствуйте! Новая статья в твоём любимом разделе "{{ category }}"!
+    </h1>
+    <p>Автор статьи: {{post.author}} </p>
+    <p>Краткое содежание: {{post.email_preview}} <a href="{{ link }}{% url 'post_id' post.id %}">...</a></p>
+</body>
+</html>

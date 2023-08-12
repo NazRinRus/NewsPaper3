@@ -8,6 +8,9 @@ class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     rating = models.IntegerField(default=0)
 
+    def __str__(self):
+        return self.user.username
+
     def update_rating(self):
         sum_rating = 0
         sum_rating_post = 0
@@ -30,6 +33,7 @@ class Author(models.Model):
 
 class Category(models.Model):
     name_cat = models.CharField(max_length=64, unique=True)
+    subscribers = models.ManyToManyField(User, related_name='categories')
 
     def __str__(self):
         return self.name_cat.title()
@@ -65,6 +69,13 @@ class Post(models.Model):
         str1 = self.text_post
         if len(str1) > 124:
             return str1[124]+'...'
+        else:
+            return str1
+
+    def email_preview(self):
+        str1 = self.text_post
+        if len(str1) > 50:
+            return str1[50]
         else:
             return str1
 

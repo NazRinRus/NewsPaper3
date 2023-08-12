@@ -47,7 +47,10 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'django_apscheduler',
 ]
+
+DEFAULT_FROM_EMAIL = 'rnazarov11@bk.ru'
 
 SITE_ID = 1
 
@@ -149,9 +152,22 @@ LOGIN_REDIRECT_URL = '/posts/'
 
 LOGIN_URL = '/accounts/login/'
 
+SITE_URL = 'http://127.0.0.1:8000/'
+
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_FORMS = {'signup': 'sign.models.BasicSignupForm'}
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.mail.ru'
+EMAIL_PORT = 2525
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = 'rnazarov11@bk.ru'
+EMAIL_HOST_PASSWORD = 'eG7jfyVDBSXDQXZ92Nei'
+
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+APSCHEDULER_RUN_NOW_TIMEOUT = 25
