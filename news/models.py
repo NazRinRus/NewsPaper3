@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
+from django.core.cache import cache
 
 
 
@@ -85,6 +86,10 @@ class Post(models.Model):
     def get_absolute_url(self):
         path1 = 'news_id' if self.position == 'NE' else 'articles_id'
         return reverse(path1, args=[str(self.id)])
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cache.delete(f'product-{self.pk}')
 
 
 class PostCategory(models.Model):

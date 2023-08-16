@@ -8,6 +8,7 @@ from .models import Post, Category
 from .filters import PostFilter
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
+from django.core.cache import cache
 
 
 menu = [{'title': "О сайте", 'url_name': 'about'},
@@ -148,6 +149,13 @@ class PostDetail(DetailView):
         context['title'] = 'Все посты'
         return context
 
+    def get_object(self, *args, **kwargs):
+        obj = cache.get(f'product-{self.kwargs["pk"]}', None)
+        if not obj:
+            obj = super().get_object(queryset=self.queryset)
+            cache.set(f'product-{self.kwargs["pk"]}', obj)
+        return obj
+
 class PostDetailNews(DetailView):
     model = Post
     template_name = 'post.html'
@@ -157,6 +165,12 @@ class PostDetailNews(DetailView):
         context['menu'] = menu
         context['title'] = 'Все посты'
         return context
+    def get_object(self, *args, **kwargs):
+        obj = cache.get(f'product-{self.kwargs["pk"]}', None)
+        if not obj:
+            obj = super().get_object(queryset=self.queryset)
+            cache.set(f'product-{self.kwargs["pk"]}', obj)
+        return obj
 
 class PostDetailArticles(DetailView):
     model = Post
@@ -167,6 +181,12 @@ class PostDetailArticles(DetailView):
         context['menu'] = menu
         context['title'] = 'Все посты'
         return context
+    def get_object(self, *args, **kwargs):
+        obj = cache.get(f'product-{self.kwargs["pk"]}', None)
+        if not obj:
+            obj = super().get_object(queryset=self.queryset)
+            cache.set(f'product-{self.kwargs["pk"]}', obj)
+        return obj
 
 class PostCreate(PermissionRequiredMixin, CreateView):
     permission_required = ('news.add_post',)
