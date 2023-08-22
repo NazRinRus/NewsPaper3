@@ -9,6 +9,7 @@ from .filters import PostFilter
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.core.cache import cache
+import logging
 
 
 menu = [{'title': "О сайте", 'url_name': 'about'},
@@ -22,6 +23,7 @@ class PostList(ListView):
     template_name = 'posts.html'
     context_object_name = 'posts'
     paginate_by = 10
+    logging.error('test_debug')
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['news'] = Post.objects.all()
